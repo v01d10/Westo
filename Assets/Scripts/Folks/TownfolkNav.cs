@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -45,18 +46,21 @@ public class TownfolkNav : MonoBehaviour {
 
     public void LoadGoodies(){
         for (int i = 0; i < AssociatedBuilding.ProducedGoods.Count; i++){
-            CarriedGoodies.Add(AssociatedBuilding.ProducedGoods[i]);
+            if(!CarriedGoodies.Contains(AssociatedBuilding.ProducedGoods[i])) {
+
+                CarriedGoodies.Add(AssociatedBuilding.ProducedGoods[i]);
+            }
         }
         
-        if(MaxCarryAmount > AssociatedBuilding.ProducedAmount0) {
+        if(MaxCarryAmount > AssociatedBuilding.ProducedAmount0 && CarryAmount0 + CarryAmount1 + CarryAmount2 < MaxCarryAmount) {
             CarryAmount0 += AssociatedBuilding.ProducedAmount0;
             AssociatedBuilding.ProducedAmount0 = 0;
 
-            if(MaxCarryAmount - CarryAmount0 > AssociatedBuilding.ProducedAmount1){
+            if(MaxCarryAmount - CarryAmount0 > AssociatedBuilding.ProducedAmount1 && CarryAmount0 + CarryAmount1 + CarryAmount2 < MaxCarryAmount){
                 CarryAmount1 += AssociatedBuilding.ProducedAmount1;
                 AssociatedBuilding.ProducedAmount1 = 0;
 
-                if(MaxCarryAmount - (CarryAmount0 + CarryAmount1) > AssociatedBuilding.ProducedAmount2){
+                if(MaxCarryAmount - (CarryAmount0 + CarryAmount1) > AssociatedBuilding.ProducedAmount2 && CarryAmount0 + CarryAmount1 + CarryAmount2 < MaxCarryAmount){
                     CarryAmount2 += AssociatedBuilding.ProducedAmount2;
                     AssociatedBuilding.ProducedAmount2 = 0;
 
@@ -82,25 +86,33 @@ public class TownfolkNav : MonoBehaviour {
         foreach (var goodie in CarriedGoodies){
             for (int i = 0; i < CarriedGoodies.Count; i++){
 
-                if(CarriedGoodies[0] != null) {
+                print(CarriedGoodies[i]);
+
+                if(CarriedGoodies.ElementAtOrDefault(0) != null) {
                     if(goodie.GoodieName == CarriedGoodies[0].GoodieName) {
                         goodie.GoodieAmount += CarryAmount0;
                         CarryAmount0 = 0;
                     } 
+                } else {
+                    CarryAmount0 = 0;
                 }
 
-                if(CarriedGoodies[1] != null) {
+                if(CarriedGoodies.ElementAtOrDefault(1) != null) {
                     if(goodie.GoodieName == CarriedGoodies[1].GoodieName) {
                         goodie.GoodieAmount += CarryAmount1;
                         CarryAmount1 = 0;
                     } 
+                } else {
+                    CarryAmount1 = 0;
                 }
 
-                if(CarriedGoodies[2] != null) {
+                if(CarriedGoodies.ElementAtOrDefault(2) != null) {
                     if(goodie.GoodieName == CarriedGoodies[2].GoodieName) {
                         goodie.GoodieAmount += CarryAmount2;
                         CarryAmount2 = 0;
-                    } 
+                    }  else {
+                        CarryAmount2 = 0;
+                    }
                 }
             }
         }
@@ -130,7 +142,6 @@ public class TownfolkNav : MonoBehaviour {
             if(Physics.Raycast(transform.position, hitColliders[i].transform.position, out Hit)) {
                 print(Hit.transform.name);
                 
-
             }
         }
 
