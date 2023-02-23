@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 568641cf9bbb88d4b9b82b1fd19c94a6, type: 3}
-  m_Name: WoodPlanks
+  m_Name: IronIngots
   m_EditorClassIdentifier: 
-  ProcessedGoodieName: Wood Planks
-  ProcessedGoodiePrice: 0
-  ProcessedGoodieAmount: 84.50002
+  ProcessedGoodieName: Iron Ingots
+  ProcessedGoodiePrice: 2.4
+  ProcessedGoodieAmount: 0

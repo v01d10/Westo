@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [CreateAssetMenu(menuName = "New Recipe")]
 public class Recipe : ScriptableObject {
@@ -14,4 +15,6 @@ public class Recipe : ScriptableObject {
     public float ingredientCost2;
 
     public float processingTime;
+
+
 }

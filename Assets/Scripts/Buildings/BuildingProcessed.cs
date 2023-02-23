@@ -9,9 +9,15 @@ public class BuildingProcessed : MonoBehaviour {
     public List<Recipe> processingQueue = new List<Recipe>(); 
 
     public float BuildingHealth;
-
+    public float BuildingProcessSlots;
     public float BuildingLevel;
     public float UpgradePrice;
+
+    public float ProcessTime;
+    public float ProcessTimer;
+    public bool Processing;
+
+    ProcessingUI processingUI;
     
     private void Start() {
         Process();
@@ -19,17 +25,22 @@ public class BuildingProcessed : MonoBehaviour {
 
     public void Process() {
         if(processingQueue.ElementAtOrDefault(0)) {
-
-            StartCoroutine(ProcessGoodies(processingQueue[0]));
+            
+            StopAllCoroutines();
+            StartCoroutine("ProcessGoodies", processingQueue[0]);
         } else {
-            Process();
+            return;
         }
     }
 
     public IEnumerator ProcessGoodies(Recipe recipe) {
+        processingUI = uiManager.instance.processingUI;
+        
+        Processing = true;
+        ProcessTimer = ProcessTime;
+        StartCoroutine("processTimer");
 
         yield return new WaitForSeconds(recipe.processingTime);
-        
         
         for (int i = 0; i < recipe.ingredients.Count; i++) {
 
@@ -50,15 +61,67 @@ public class BuildingProcessed : MonoBehaviour {
 
                         Player.instance.PlayerWarehouse.StoredGoodies[i].GoodieAmount -= recipe.ingredientCost2;
                     }
-
                 }
-            
             }
         }
 
         recipe.FinalProduct.ProcessedGoodieAmount += (BuildingLevel * 1.3f);
         processingQueue.RemoveAt(0);
+        Processing = false;
+
+        HandleUI();
         Process();
+    }
+
+    void HandleUI(){
+        if(processingUI.isActiveAndEnabled && processingUI.openedBuilding == this){          
+            
+            List<GameObject> recipes = processingUI.ActiveRecipes;
+            List<GameObject> slots = processingUI.ActiveSlots;
+
+
+            Destroy(recipes[0]);
+            recipes.RemoveAt(0);
+
+            for (int i = 0; i < recipes.Count; i++) {
+
+                recipes[i].GetComponent<DragDrop>().usedSlot = slots[i];
+                slots[i].GetComponent<DropSlot>().UsedRecipe = recipes[i];
+                recipes[i].transform.position = recipes[i].GetComponent<DragDrop>().usedSlot.transform.position;            
+            }
+
+            for (int i = 0; i < recipes.Count; i++) {
+                if(slots.Count > recipes.Count) {
+                    slots[recipes.Count].GetComponent<DropSlot>().UsedRecipe = null;
+                    slots[recipes.Count].GetComponent<DropSlot>().slotTimer.gameObject.SetActive(false);
+                }
+            }
+
+            if(recipes.Count == 0) {
+                foreach (var slot in slots) {
+                    slot.GetComponent<DropSlot>().slotTimer.gameObject.SetActive(false);
+                }
+            }
+        }
+    }
+
+    IEnumerator processTimer() {
+        print("Timer started");
+        if(uiManager.instance.ProcessUI.activeInHierarchy && processingUI.openedBuilding == this) {
+            processingUI.ActiveSlots[0].GetComponent<DropSlot>().slotTimer.text = ProcessTimer.ToString();
+        }
+        
+        if (ProcessTimer >= 1) {
+            ProcessTimer--;
+            Debug.LogWarning("Timer = " + ProcessTimer);
+            yield return new WaitForSeconds(1);
+            StartCoroutine("processTimer");
+        }
+    }
+
+    private void OnMouseDown() {
+        uiManager.instance.selectedBuilding = this.gameObject;
+        uiManager.instance.processingUI.OpenProcessingMenu();
     }
 
 }
