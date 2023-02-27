@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
@@ -9,11 +11,17 @@ public class DragDrop : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     [SerializeField] private Canvas canvas;
     GameObject instRecipe;
     public GameObject usedSlot;
+    
+    MobileCameraController cameraController;
+    
     public int recipeIndex;
     public bool staticRecipe;
 
+    DropSlot slot;
+
     private void Start() {
         Invoke("SetCanvas", 0.1f);
+        cameraController = Camera.main.GetComponentInParent<MobileCameraController>();
     }
 
     void SetCanvas(){
@@ -35,6 +43,8 @@ public class DragDrop : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         instRecipe.transform.localScale = new Vector3( 1.3f, 1.3f, 1.3f);
         instRecipe.GetComponent<CanvasGroup>().blocksRaycasts = false;
         instRecipe.GetComponent<CanvasGroup>().alpha = 0.6f;
+
+        cameraController.enabled = false;
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -50,34 +60,45 @@ public class DragDrop : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         transform.localScale = new Vector3( 1f, 1f, 1f);
         
             Debug.LogWarning(eventData.pointerCurrentRaycast.gameObject);
+            BuildingProcessed buildingProcessed = uiManager.instance.processingUI.openedBuilding;
 
             if(eventData.pointerCurrentRaycast.gameObject != null){
-                if(!eventData.pointerCurrentRaycast.gameObject.GetComponent<DropSlot>()){
+                if(!eventData.pointerCurrentRaycast.gameObject.GetComponent<DropSlot>() || buildingProcessed.processingQueue.Count >= uiManager.instance.processingUI.ActiveSlots.Count){
                     
                     Destroy(gameObject);
                 } else {
-                    BuildingProcessed buildingProcessed = uiManager.instance.processingUI.openedBuilding;
 
-                    transform.position = eventData.pointerCurrentRaycast.gameObject.transform.position;
 
-                    eventData.pointerCurrentRaycast.gameObject.GetComponent<DropSlot>().Occupado = true;
-                    eventData.pointerCurrentRaycast.gameObject.GetComponent<DropSlot>().UsedRecipe = gameObject;
-                    eventData.pointerCurrentRaycast.gameObject.GetComponent<DropSlot>().slotTimer.gameObject.SetActive(true);
+                    if(!buildingProcessed.processingQueue.Any()){
+
+                        transform.position = uiManager.instance.processingUI.ActiveSlots[0].transform.position;
+                        slot = uiManager.instance.processingUI.ActiveSlots[0].GetComponent<DropSlot>();
+                    } else {
+
+                        transform.position = uiManager.instance.processingUI.ActiveSlots[buildingProcessed.processingQueue.Count].transform.position;
+                        slot = uiManager.instance.processingUI.ActiveSlots[buildingProcessed.processingQueue.Count].GetComponent<DropSlot>();
+                    }
+
+
+                    slot.Occupado = true;
+                    slot.UsedRecipe = gameObject;
+                    slot.slotTimer.gameObject.SetActive(true);
                     
                     uiManager.instance.processingUI.ActiveRecipes.Add(gameObject);
-                    usedSlot = eventData.pointerCurrentRaycast.gameObject;
+                    usedSlot = slot.gameObject;
                     
                     buildingProcessed.processingQueue.Add(buildingProcessed.recipesAvailable[recipeIndex]);
 
                     buildingProcessed.ProcessTime = buildingProcessed.recipesAvailable[recipeIndex].processingTime;
-                    eventData.pointerCurrentRaycast.gameObject.GetComponentInChildren<TextMeshProUGUI>().text = buildingProcessed.recipesAvailable[recipeIndex].processingTime.ToString();
+                    slot.gameObject.GetComponentInChildren<TextMeshProUGUI>().text = buildingProcessed.recipesAvailable[recipeIndex].processingTime.ToString();
+                    
                     if(!buildingProcessed.Processing) buildingProcessed.Process();
-
                 }
             } else {
                 Destroy(gameObject);
             }
         
+        cameraController.enabled = true;
     }
 
     public void OnPointerDown(PointerEventData eventData) {

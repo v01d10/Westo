@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49855c9f446e9554499f7d9d6046e7d3, type: 3}
+  m_Name: SixShooterRecipe
+  m_EditorClassIdentifier: 
+  ingredients: []
+  FinalProduct: {fileID: 11400000, guid: d3e09dc7e1d8caa418448e31311a5534, type: 2}
+  ingredientCost0: 0
+  ingredientCost1: 0
+  ingredientCost2: 0
+  processingTime: 0

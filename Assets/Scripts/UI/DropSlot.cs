@@ -10,6 +10,7 @@ public class DropSlot : MonoBehaviour, IDropHandler {
     public GameObject UsedRecipe;
     public TextMeshProUGUI slotTimer;
     public bool Occupado;
+    public int slotIndex;
     
     public void OnDrop(PointerEventData eventData) {
         Debug.Log("OnDrop");
