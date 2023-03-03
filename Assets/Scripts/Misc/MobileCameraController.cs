@@ -36,8 +36,11 @@ public class MobileCameraController : MonoBehaviour
                 
                 Camera.transform.Translate(Delta1, Space.World);
 
+                if(uiManager.instance.buildingMenu.activeInHierarchy){
+                    uiManager.instance.CloseBuildingMenu();
+                }
                 if(uiManager.instance.ProcessUI.activeInHierarchy){
-                    uiManager.instance.processingUI.CloseProcessingMenu();
+                    uiManager.instance.processingUI.CloseProcessingMenu(true);
                 }
             }
         }

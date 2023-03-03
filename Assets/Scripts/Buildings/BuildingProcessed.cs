@@ -6,9 +6,8 @@ using UnityEngine;
 public class BuildingProcessed : MonoBehaviour {
 
     public List<Recipe> recipesAvailable = new List<Recipe>();
-    public List<Recipe> processingQueue = new List<Recipe>(); 
+    public List<GameObject> processingQueue = new List<GameObject>(); 
 
-    List<GameObject> recipes;
     List<GameObject> slots;
     
     public Townfolk AssignedWorker;
@@ -35,7 +34,7 @@ public class BuildingProcessed : MonoBehaviour {
         if(processingQueue.ElementAtOrDefault(0)) {
             
             StopAllCoroutines();
-            StartCoroutine("ProcessGoodies", processingQueue[0]);
+            StartCoroutine("ProcessGoodies", processingQueue[0].GetComponent<DragDrop>().usedRecipe);
         } else {
             return;
         }
@@ -53,70 +52,64 @@ public class BuildingProcessed : MonoBehaviour {
         HandleGoodies(recipe);
         HandleUI(false);
         
-        processingQueue.RemoveAt(0);
-
         Processing = false;
         Process();
     }
 
     void HandleGoodies(Recipe recipe) {
 
+        for (int i = 0; i < recipe.ingredients.Count; i++) {
 
-            for (int i = 0; i < recipe.ingredients.Count; i++) {
-
-                for (int y = 0; y < Player.instance.PlayerWarehouse.StoredGoodies.Count; y++) {
+            for (int y = 0; y < Player.instance.PlayerWarehouse.StoredGoodies.Count; y++) {
                 
-                    if(recipe.ingredients[i].GoodieName == Player.instance.PlayerWarehouse.StoredGoodies[y].GoodieName){
+                if(recipe.ingredients[i].GoodieName == Player.instance.PlayerWarehouse.StoredGoodies[y].GoodieName){
 
-                        if(Player.instance.PlayerWarehouse.StoredGoodies[y].GoodieAmount >= recipe.ingredientCost0) {
+                    if(Player.instance.PlayerWarehouse.StoredGoodies[y].GoodieAmount >= recipe.ingredientCost0) {
 
-                            Player.instance.PlayerWarehouse.StoredGoodies[y].GoodieAmount -= recipe.ingredientCost0;
-                        }
+                        Player.instance.PlayerWarehouse.StoredGoodies[y].GoodieAmount -= recipe.ingredientCost0;
+                    }
 
-                        if(Player.instance.PlayerWarehouse.StoredGoodies[y].GoodieAmount >= recipe.ingredientCost1) {
+                    if(Player.instance.PlayerWarehouse.StoredGoodies[y].GoodieAmount >= recipe.ingredientCost1) {
 
-                            Player.instance.PlayerWarehouse.StoredGoodies[y].GoodieAmount -= recipe.ingredientCost1;
-                        }
+                        Player.instance.PlayerWarehouse.StoredGoodies[y].GoodieAmount -= recipe.ingredientCost1;
+                    }
 
-                        if(Player.instance.PlayerWarehouse.StoredGoodies[y].GoodieAmount >= recipe.ingredientCost2) {
+                    if(Player.instance.PlayerWarehouse.StoredGoodies[y].GoodieAmount >= recipe.ingredientCost2) {
 
-                            Player.instance.PlayerWarehouse.StoredGoodies[y].GoodieAmount -= recipe.ingredientCost2;
-                        }
+                        Player.instance.PlayerWarehouse.StoredGoodies[y].GoodieAmount -= recipe.ingredientCost2;
                     }
                 }
             }
+        }
    
-            recipe.FinalProduct.ProcessedGoodieAmount += (BuildingLevel * 1.3f);
+        recipe.FinalProduct.ProcessedGoodieAmount += (BuildingLevel * 1.3f);
         
     }
 
     public void HandleUI(bool Cancel){
-        if(processingUI.isActiveAndEnabled && processingUI.openedBuilding == this){     
+        if(!Cancel){
 
-            recipes = processingUI.ActiveRecipes;
+            Destroy(processingQueue[0]);
+            processingQueue.RemoveAt(0);
+        }
+
+        if(uiManager.instance.ProcessUI.activeInHierarchy && processingUI.openedBuilding == this){     
+
             slots = processingUI.ActiveSlots;
             
-            if(!Cancel){
+            for (int i = 0; i < processingQueue.Count; i++) {
 
-                Destroy(recipes[0]);
-                recipes.RemoveAt(0);
-            }
-
-            for (int i = 0; i < recipes.Count; i++) {
-
-                recipes[i].GetComponent<DragDrop>().usedSlot = slots[i];
-                slots[i].GetComponent<DropSlot>().UsedRecipe = recipes[i];
-                recipes[i].transform.position = recipes[i].GetComponent<DragDrop>().usedSlot.transform.position;            
-            }
-
-            for (int i = 0; i < recipes.Count; i++) {
-                if(slots.Count > recipes.Count) {
-                    slots[recipes.Count].GetComponent<DropSlot>().UsedRecipe = null;
-                    slots[recipes.Count].GetComponent<DropSlot>().slotTimer.gameObject.SetActive(false);
+                processingQueue[i].GetComponent<DragDrop>().usedSlot = slots[i];
+                slots[i].GetComponent<DropSlot>().UsedRecipe = processingQueue[i];
+                processingQueue[i].transform.position = processingQueue[i].GetComponent<DragDrop>().usedSlot.transform.position;            
+            
+                if(slots.Count > processingQueue.Count) {
+                    slots[processingQueue.Count].GetComponent<DropSlot>().UsedRecipe = null;
+                    slots[processingQueue.Count].GetComponent<DropSlot>().slotTimer.gameObject.SetActive(false);
                 }
             }
 
-            if(recipes.Count == 0) {
+            if(processingQueue.Count == 0) {
                 foreach (var slot in slots) {
                     slot.GetComponent<DropSlot>().slotTimer.gameObject.SetActive(false);
                 }
@@ -143,13 +136,11 @@ public class BuildingProcessed : MonoBehaviour {
     }
 
     private void OnMouseDown() {
+        if(!uiManager.IsMouseOverUIIgnores()){
 
-        uiManager.instance.selectedBuilding = this.gameObject;
-        uiManager.instance.processingUI.OpenProcessingMenu();
-
-        processingUI.RemoveCancelButtons();
-        processingUI.AssignCancelButtons();
-
+            uiManager.instance.selectedBuilding = this.gameObject;
+            uiManager.instance.OpenBuildingMenu();
+        }
     }
 
 }

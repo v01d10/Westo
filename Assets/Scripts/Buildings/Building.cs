@@ -13,12 +13,12 @@ public class Building : MonoBehaviour
     public float ProductionRate;
     public float MaxProduced;
 
+    public float ProductionTime;
+    public float ProductionTimer;
+
     public float ProducedAmount0;
-    //public float MaxProducedAmount0;
     public float ProducedAmount1;
-    //public float MaxProducedAmount1;
     public float ProducedAmount2;
-    //public float MaxProducedAmount2;
 
     public List<Goodie> ProducedGoods = new List<Goodie>();
     public List<Townfolk> WorkingFolks = new List<Townfolk>();
@@ -34,9 +34,17 @@ public class Building : MonoBehaviour
         }
     }
 
+    void Produce() {
+
+        StopAllCoroutines();
+        StartCoroutine("ProduceGoodies");
+    }
+
     public IEnumerator ProduceGoodies(){
         
         if(WorkingFolks.Any()){
+
+            StartCoroutine("productionTimer");
 
             if(ProducedGoods.Count >= 1 && ProducedAmount0 < MaxProduced / ProducedGoods.Count) {
                 
@@ -53,12 +61,38 @@ public class Building : MonoBehaviour
         }
 
         Debug.Log("Producing goodies");
-        yield return new WaitForSeconds(10);
-        StartCoroutine(ProduceGoodies());
+        yield return new WaitForSeconds(ProductionTime);
+        Produce();
+    }
+
+    IEnumerator productionTimer() {
+
+        if(uiManager.instance.ProdUI.activeInHierarchy && uiManager.instance.selectedBuilding == this.gameObject){
+
+            uiManager.instance.productionUI.LoadProgressBar();
+            uiManager.instance.productionUI.LoadMainText();
+        }
+
+        if(ProductionTimer < ProductionTime) {
+
+            ProductionTimer++;
+            yield return new WaitForSeconds(1);
+            StartCoroutine("productionTimer");
+
+        } else {
+
+            ProductionTimer = 0;
+            StartCoroutine("productionTimer");
+        }
     }
 
     private void OnMouseDown() {
         
+        if(!uiManager.IsMouseOverUIIgnores()){
+
+            uiManager.instance.selectedBuilding = this.gameObject;
+            uiManager.instance.OpenBuildingMenu();
+        }
     }
 
     public void GatherGoodies() {

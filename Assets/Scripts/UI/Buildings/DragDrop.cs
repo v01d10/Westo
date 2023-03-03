@@ -9,7 +9,8 @@ using TMPro;
 public class DragDrop : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IEndDragHandler, IDragHandler {
     
     [SerializeField] private Canvas canvas;
-    GameObject instRecipe;
+
+    public Recipe usedRecipe;
     public GameObject usedSlot;
     
     MobileCameraController cameraController;
@@ -18,6 +19,7 @@ public class DragDrop : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     public bool staticRecipe;
 
     DropSlot slot;
+    GameObject instRecipe;
 
     private void Start() {
         Invoke("SetCanvas", 0.1f);
@@ -33,7 +35,6 @@ public class DragDrop : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        Debug.Log("OnBeginDrag");
         
         instRecipe = Instantiate(eventData.pointerPressRaycast.gameObject, eventData.position, Quaternion.identity);
         instRecipe.transform.SetParent(canvas.transform);
@@ -44,14 +45,17 @@ public class DragDrop : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
         instRecipe.GetComponent<CanvasGroup>().blocksRaycasts = false;
         instRecipe.GetComponent<CanvasGroup>().alpha = 0.6f;
 
+        Debug.Log(instRecipe);
+        instRecipe.GetComponent<DragDrop>().usedRecipe = uiManager.instance.processingUI.openedBuilding.recipesAvailable[recipeIndex];
+        
         cameraController.enabled = false;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
         if(!staticRecipe) {
+            
             transform.position = eventData.position;
-            // GetComponent<RectTransform>().anchoredPosition += eventData.delta / canvas.scaleFactor;
         }
     }
 
@@ -68,7 +72,6 @@ public class DragDrop : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
                     Destroy(gameObject);
                 } else {
 
-
                     if(!buildingProcessed.processingQueue.Any()){
 
                         transform.position = uiManager.instance.processingUI.ActiveSlots[0].transform.position;
@@ -79,16 +82,12 @@ public class DragDrop : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
                         slot = uiManager.instance.processingUI.ActiveSlots[buildingProcessed.processingQueue.Count].GetComponent<DropSlot>();
                     }
 
-
-                    slot.Occupado = true;
                     slot.UsedRecipe = gameObject;
                     slot.slotTimer.gameObject.SetActive(true);
-                    
-                    uiManager.instance.processingUI.ActiveRecipes.Add(gameObject);
                     usedSlot = slot.gameObject;
                     
-                    buildingProcessed.processingQueue.Add(buildingProcessed.recipesAvailable[recipeIndex]);
-
+                    buildingProcessed.processingQueue.Add(gameObject);
+                    
                     buildingProcessed.ProcessTime = buildingProcessed.recipesAvailable[recipeIndex].processingTime;
                     slot.gameObject.GetComponentInChildren<TextMeshProUGUI>().text = buildingProcessed.recipesAvailable[recipeIndex].processingTime.ToString();
                     

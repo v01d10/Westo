@@ -6,6 +6,8 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using TMPro;
+using DG.Tweening;
 
 public class ProcessingUI : MonoBehaviour
 {
@@ -18,9 +20,6 @@ public class ProcessingUI : MonoBehaviour
     public GameObject processScroll;
     public GameObject recipeSlotScroll;
 
-    public List<Sprite> RecipeIcons = new List<Sprite>();
-
-    
     public List<GameObject> RecipeSlots = new List<GameObject>();
     public List<GameObject> ActiveRecipes = new List<GameObject>();
 
@@ -30,32 +29,34 @@ public class ProcessingUI : MonoBehaviour
 
     GameObject addSlot;
 
-    private void Start()
-    {
-
-        OpenProcessingMenu();
-    }
-
     public void OpenProcessingMenu() {
+
+        uiManager.instance.CloseBuildingMenu();
 
         uiManager.instance.ProcessUI.SetActive(true);
 
         openedBuilding = uiManager.instance.selectedBuilding.GetComponent<BuildingProcessed>();
+        
+        CloseProcessingMenu(false);
 
         SpawnSlots(false);
         SpawnRecipes();
+        uiManager.instance.ProcessUI.transform.localScale = new Vector3(.7f, .7f, .7f);
+        uiManager.instance.ProcessUI.transform.DOScale(new Vector3(1f, 1f, 1f), 0.2f).onComplete = () => SpawnProcessing();
+        
 
         RemoveCancelButtons();
         AssignCancelButtons();
+
     }
 
-    public void CloseProcessingMenu() {
+    public void CloseProcessingMenu(bool Complete) {
 
         foreach (var slot in ActiveSlots) {
             Destroy(slot);
         }
-        foreach (var recipe in ActiveRecipes) {
-            Destroy(recipe);
+        foreach (var recipe in openedBuilding.processingQueue) {
+            recipe.SetActive(false);
         }
         foreach (var recipeSlot in RecipeSlots) {
             Destroy(recipeSlot);
@@ -67,19 +68,25 @@ public class ProcessingUI : MonoBehaviour
 
         Destroy(addSlot);
 
-        uiManager.instance.selectedBuilding = null;
-        uiManager.instance.ProcessUI.SetActive(false);
+        if(Complete){
+            
+            uiManager.instance.selectedBuilding = null;
+            uiManager.instance.ProcessUI.transform.DOScale(new Vector3(.1f, .1f, .1f), 0.2f).onComplete = () => {
+
+                uiManager.instance.ProcessUI.SetActive(false);
+            };
+        }
+
     }
 
     public void SpawnSlots(bool single) {
-        if (single)
-        {
+        if (single) {
+
             GameObject slot = Instantiate(processSlotPrefab, processScroll.transform);
             ActiveSlots.Add(slot);
             slot.transform.SetAsLastSibling();
-        }
-        else
-        {
+        } else {
+
             for (int i = 0; i < openedBuilding.BuildingProcessSlots; i++)
             {
                 GameObject slot = Instantiate(processSlotPrefab, processScroll.transform);
@@ -100,16 +107,16 @@ public class ProcessingUI : MonoBehaviour
             GameObject recipeSlot = Instantiate(recipeSlotPrefab, recipeSlotScroll.transform);
             RecipeSlots.Add(recipeSlot);
 
-            for (int y = 0; y < RecipeIcons.Count; y++)
+            for (int y = 0; y < uiManager.instance.RecipeIcons.Count; y++)
             {
                 string[] names = openedBuilding.recipesAvailable[i].FinalProduct.ProcessedGoodieName.Split(" ");
 
                 for (int x = 0; x < name.Length; x++)
                 {
-                    if (Path.GetFileNameWithoutExtension(AssetDatabase.GetAssetPath(RecipeIcons[y])).Contains(names[x]))
+                    if (Path.GetFileNameWithoutExtension(AssetDatabase.GetAssetPath(uiManager.instance.RecipeIcons[y])).Contains(names[x]))
                     {
                         GameObject recipe = Instantiate(recipePrefab, recipeSlot.transform);
-                        recipe.GetComponent<Image>().sprite = RecipeIcons[y];
+                        recipe.GetComponent<Image>().sprite = uiManager.instance.RecipeIcons[y];
                         recipe.GetComponent<DragDrop>().staticRecipe = true;
                         recipe.GetComponent<DragDrop>().recipeIndex = i;
                         Debug.LogWarning("Found same name" + names[x]);
@@ -120,26 +127,53 @@ public class ProcessingUI : MonoBehaviour
         }
     }
 
+    void SpawnProcessing() {
+
+        if(openedBuilding.processingQueue.Any()){
+
+            for (int i = 0; i < openedBuilding.processingQueue.Count; i++) {
+                
+                openedBuilding.processingQueue[i].SetActive(true);
+                
+                ActiveSlots[i].GetComponent<DropSlot>().slotTimer.gameObject.SetActive(true);
+                if(i > 0)
+                    ActiveSlots[i].GetComponent<DropSlot>().slotTimer.text = openedBuilding.processingQueue[i].GetComponent<DragDrop>().usedRecipe.processingTime.ToString();
+                else
+                    ActiveSlots[i].GetComponent<DropSlot>().slotTimer.text = openedBuilding.ProcessTimer.ToString();
+
+            }
+
+            StartCoroutine("invokeHandleUI");
+        }
+    }
+
+    IEnumerator invokeHandleUI() {
+        yield return new WaitForSeconds(0.01f);
+        openedBuilding.HandleUI(true);
+    }
+
     public void AssignCancelButtons() {
 
         foreach(var slot in ActiveSlots)
         {
             slot.GetComponent<Button>().onClick.AddListener(() =>
             {
-                Recipe recipe = openedBuilding.processingQueue[slot.GetComponent<DropSlot>().slotIndex];
+                if(openedBuilding.processingQueue.Any()){
 
-                Destroy(slot.GetComponent<DropSlot>().UsedRecipe);
-                ActiveRecipes.Remove(slot.GetComponent<DropSlot>().UsedRecipe);
+                    Recipe recipe = openedBuilding.processingQueue[slot.GetComponent<DropSlot>().slotIndex].GetComponent<DragDrop>().usedRecipe;
 
-                openedBuilding.HandleUI(true);
+                    Destroy(slot.GetComponent<DropSlot>().UsedRecipe);
 
-                openedBuilding.processingQueue.RemoveAt(slot.GetComponent<DropSlot>().slotIndex);
+                    openedBuilding.processingQueue.RemoveAt(slot.GetComponent<DropSlot>().slotIndex);
 
-                if(slot.GetComponent<DropSlot>().slotIndex == 0){
+                    openedBuilding.HandleUI(true);
 
-                    openedBuilding.StopAllCoroutines();
-                    openedBuilding.Processing = false;
-                    openedBuilding.Process();
+                    if(slot.GetComponent<DropSlot>().slotIndex == 0){
+
+                        openedBuilding.StopAllCoroutines();
+                        openedBuilding.Processing = false;
+                        openedBuilding.Process();
+                    }
                 }
 
             });
@@ -157,6 +191,7 @@ public class ProcessingUI : MonoBehaviour
         //Subtract premium currency
         SpawnSlots(true);
         addSlot.transform.SetAsLastSibling();
+        openedBuilding.BuildingProcessSlots++;
     }
 
 
