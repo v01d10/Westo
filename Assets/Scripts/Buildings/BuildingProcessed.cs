@@ -10,7 +10,7 @@ public class BuildingProcessed : MonoBehaviour {
 
     List<GameObject> slots;
     
-    public Townfolk AssignedWorker;
+    public List<Townfolk> WorkingFolks;
     
     public float BuildingHealth;
     public float BuildingProcessSlots;
@@ -49,9 +49,19 @@ public class BuildingProcessed : MonoBehaviour {
 
         yield return new WaitForSeconds(recipe.processingTime);
         
-        HandleGoodies(recipe);
-        HandleUI(false);
-        
+        if(WorkingFolks.Any()) {
+
+            HandleGoodies(recipe);
+            HandleUI(false);
+
+            for (int i = 0; i < WorkingFolks.Count; i++) {
+                WorkingFolks[i].AddExp(0.05f);
+            }
+        } else {
+
+            Debug.LogError("No workers " + name);
+        }
+
         Processing = false;
         Process();
     }

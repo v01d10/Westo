@@ -25,9 +25,8 @@ public class uiManager : MonoBehaviour
     public GameObject ProcessUI;
 
     private void Awake() {
-        instance = this;
         
-        processingUI = GetComponent<ProcessingUI>();
+        instance = this;
     }
 
     public static bool IsMouseOverUI(){
@@ -58,17 +57,19 @@ public class uiManager : MonoBehaviour
         buildingMenu.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
         buildingMenu.transform.DOScale(new Vector3(1, 1, 1), .5f);
         
-        if(selectedBuilding.GetComponent<BuildingProcessed>()){
 
-            BuildingMenu.instance.BuildingPanelButton.onClick.AddListener(() => processingUI.OpenProcessingMenu());
-        }
+        BuildingMenu.instance.BuildingPanelButton.onClick.AddListener(() => {
 
-        if(selectedBuilding.GetComponent<Building>()){
+            if(selectedBuilding.GetComponent<BuildingProcessed>()){
+
+                processingUI.OpenProcessingMenu();
+            }
+            if(selectedBuilding.GetComponent<Building>()){
             
-            BuildingMenu.instance.BuildingPanelButton.onClick.AddListener(() => productionUI.OpenBuildingPanel());
-        }
-
-        Vector3 buildindPosition = new Vector3(selectedBuilding.transform.position.x, selectedBuilding.transform.position.y, selectedBuilding.transform.position.z - 2);
+                productionUI.OpenProductionPanel();
+            }
+        });
+        
         buildingMenu.transform.position = selectedBuilding.transform.position;
     }
 
@@ -84,6 +85,26 @@ public class uiManager : MonoBehaviour
             buildingMenu.SetActive(false);
         });
 
+    }
+
+    public void CloseUI() {
+
+        if(buildingMenu.activeInHierarchy){
+            CloseBuildingMenu();
+        }
+        if(ProdUI.activeInHierarchy) {
+            productionUI.CloseProductionPanel();
+        }
+        if(ProcessUI.activeInHierarchy){
+            processingUI.CloseProcessingMenu(true);
+        }
+    }
+
+    public void ButtonClickEffect(Button button) {
+
+        button.transform.DOScale(new Vector3(.8f, .8f, .8f), .1f).onComplete = () => {
+            button.transform.DOScale(new Vector3(1f, 1f, 1f), .1f);
+        };
     }
 
 

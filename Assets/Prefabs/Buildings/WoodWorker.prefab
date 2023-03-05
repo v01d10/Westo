@@ -46,16 +46,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04cc46948c217a6488fedeb4e361eff3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BuildingHealth: 0
+  BuildingHealth: 101
   BuildingLevel: 1
   UpgradePrice: 210
   ProductionRate: 0.3
-  MaxProduced: 0
-  ProductionTime: 0
+  MaxProduced: 70
+  ProductionTime: 10
   ProductionTimer: 0
-  ProducedAmount0: 100
-  ProducedAmount1: 100
-  ProducedAmount2: 100
+  ProducedAmount0: 0
+  ProducedAmount1: 0
+  ProducedAmount2: 0
   ProducedGoods:
   - {fileID: 11400000, guid: b6a843acd1c73da47b8c46cbe245dbb4, type: 2}
   WorkingFolks: []

@@ -58,9 +58,17 @@ public class Building : MonoBehaviour
                     }
                 } 
             } 
+
+            for (int i = 0; i < WorkingFolks.Count; i++) {
+                WorkingFolks[i].AddExp(0.03f);
+            }
+            
+            Debug.Log("Producing goodies");
+        } else {
+
+            Debug.LogError("No workers " + name);
         }
 
-        Debug.Log("Producing goodies");
         yield return new WaitForSeconds(ProductionTime);
         Produce();
     }
@@ -97,7 +105,36 @@ public class Building : MonoBehaviour
 
     public void GatherGoodies() {
 
-        
+        uiManager.instance.ButtonClickEffect(uiManager.instance.productionUI.GatherButton);
+
+        for (int i = 0; i < ProducedGoods.Count; i++) {
+            
+            for (int y = 0; y < Warehouse.instance.StoredGoodies.Count; y++) {
+                
+                if(ProducedGoods[i].GoodieName == Warehouse.instance.StoredGoodies[y].GoodieName) {
+
+                    if(i == 0) {
+
+                        Warehouse.instance.StoredGoodies[y].GoodieAmount += ProducedAmount0;
+                        ProducedAmount0 = 0;
+                    }
+                    if(i == 1) {
+
+                        Warehouse.instance.StoredGoodies[y].GoodieAmount += ProducedAmount1;
+                        ProducedAmount1 = 0;
+                    }
+                    if(i == 2) {
+
+                        Warehouse.instance.StoredGoodies[y].GoodieAmount += ProducedAmount2;
+                        ProducedAmount2 = 0;
+                    }
+                    
+                }
+            }
+        }
+
+        uiManager.instance.productionUI.LoadMainText();
+        print("Gathered Goodies");
     }
 
 }

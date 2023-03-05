@@ -11,14 +11,20 @@ public class ProductionUI : MonoBehaviour {
 
     Building OpenedBuilding; 
 
+    public TextMeshProUGUI BuildingNameText;
+    public Button GatherButton;
+
 [Header("Main Panel")]
     public TextMeshProUGUI HealthText;
     public TextMeshProUGUI LevelText;
     public TextMeshProUGUI ProdRateText;
 
     public TextMeshProUGUI MaxProducedText;
+    public TextMeshProUGUI Produced0NameText;
     public TextMeshProUGUI Produced0Text;
+    public TextMeshProUGUI Produced1NameText;
     public TextMeshProUGUI Produced1Text;
+    public TextMeshProUGUI Produced2NameText;
     public TextMeshProUGUI Produced2Text;
 
 [Header("Goodies Panel")]
@@ -32,26 +38,58 @@ public class ProductionUI : MonoBehaviour {
 [Header("Progress Bar")]
     public Image progressBar;
 
-    public void OpenBuildingPanel() {
+    public void OpenProductionPanel() {
 
+        uiManager.instance.CloseBuildingMenu();
         uiManager.instance.ProdUI.SetActive(true);
         OpenedBuilding = uiManager.instance.selectedBuilding.GetComponent<Building>();
 
         LoadMainText();
         LoadGoodies();
         LoadProgressBar();
+        AssignGatherButton();
+    }
+
+    public void CloseProductionPanel() {
+
+        uiManager.instance.ProdUI.SetActive(false);
+        uiManager.instance.selectedBuilding = null;
     }
 
     public void LoadMainText() {
+
+        BuildingNameText.text = OpenedBuilding.transform.name;
 
         HealthText.text = OpenedBuilding.BuildingHealth.ToString();
         LevelText.text = OpenedBuilding.BuildingLevel.ToString();
         ProdRateText.text = OpenedBuilding.ProductionRate.ToString();
         
         MaxProducedText.text = OpenedBuilding.MaxProduced.ToString();
-        Produced0Text.text = OpenedBuilding.ProducedAmount0.ToString();
-        Produced1Text.text = OpenedBuilding.ProducedAmount1.ToString();
-        Produced2Text.text = OpenedBuilding.ProducedAmount2.ToString();
+
+        Produced0NameText.text = ("Produced - " + OpenedBuilding.ProducedGoods[0].GoodieName);
+        Produced0Text.text = (OpenedBuilding.ProducedAmount0 + " / " + (int)(OpenedBuilding.MaxProduced / OpenedBuilding.ProducedGoods.Count));
+
+        if(OpenedBuilding.ProducedGoods.ElementAtOrDefault(1)) {
+
+            Produced1NameText.text = ("Produced - " + OpenedBuilding.ProducedGoods[1].GoodieName);
+            Produced1Text.text = (OpenedBuilding.ProducedAmount1 + " / " + (int)(OpenedBuilding.MaxProduced / OpenedBuilding.ProducedGoods.Count));
+        } else {
+
+            Produced1NameText.text = "None";
+            Produced1Text.text = "None";
+        }
+
+        if(OpenedBuilding.ProducedGoods.ElementAtOrDefault(2)) {
+
+            Produced2NameText.text = ("Produced - " + OpenedBuilding.ProducedGoods[2].GoodieName);
+            Produced2Text.text = (OpenedBuilding.ProducedAmount1 + " / " + (int)(OpenedBuilding.MaxProduced / OpenedBuilding.ProducedGoods.Count));
+        } else {
+
+            Produced2NameText.text = "None";
+            Produced2Text.text = "None";
+        }
+
+        
     }
 
     void LoadGoodies() {
@@ -111,6 +149,12 @@ public class ProductionUI : MonoBehaviour {
     public void LoadProgressBar() {
         
         progressBar.fillAmount = OpenedBuilding.ProductionTimer / OpenedBuilding.ProductionTime;
+    }
+
+    void AssignGatherButton() {
+
+        GatherButton.onClick.RemoveAllListeners();
+        GatherButton.onClick.AddListener(() => OpenedBuilding.GatherGoodies());
     }
 
 }

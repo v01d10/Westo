@@ -21,8 +21,6 @@ public class ProcessingUI : MonoBehaviour
     public GameObject recipeSlotScroll;
 
     public List<GameObject> RecipeSlots = new List<GameObject>();
-    public List<GameObject> ActiveRecipes = new List<GameObject>();
-
     public List<GameObject> ActiveSlots = new List<GameObject>();
     
     public BuildingProcessed openedBuilding;
@@ -43,7 +41,6 @@ public class ProcessingUI : MonoBehaviour
         SpawnRecipes();
         uiManager.instance.ProcessUI.transform.localScale = new Vector3(.7f, .7f, .7f);
         uiManager.instance.ProcessUI.transform.DOScale(new Vector3(1f, 1f, 1f), 0.2f).onComplete = () => SpawnProcessing();
-        
 
         RemoveCancelButtons();
         AssignCancelButtons();
@@ -63,7 +60,6 @@ public class ProcessingUI : MonoBehaviour
         }
 
         ActiveSlots.Clear();
-        ActiveRecipes.Clear();
         RecipeSlots.Clear();
 
         Destroy(addSlot);
@@ -72,7 +68,6 @@ public class ProcessingUI : MonoBehaviour
             
             uiManager.instance.selectedBuilding = null;
             uiManager.instance.ProcessUI.transform.DOScale(new Vector3(.1f, .1f, .1f), 0.2f).onComplete = () => {
-
                 uiManager.instance.ProcessUI.SetActive(false);
             };
         }
@@ -111,15 +106,13 @@ public class ProcessingUI : MonoBehaviour
             {
                 string[] names = openedBuilding.recipesAvailable[i].FinalProduct.ProcessedGoodieName.Split(" ");
 
-                for (int x = 0; x < name.Length; x++)
-                {
-                    if (Path.GetFileNameWithoutExtension(AssetDatabase.GetAssetPath(uiManager.instance.RecipeIcons[y])).Contains(names[x]))
-                    {
+                for (int x = 0; x < name.Length; x++) {
+                    
+                    if (Path.GetFileNameWithoutExtension(AssetDatabase.GetAssetPath(uiManager.instance.RecipeIcons[y])).Contains(names[x])) {
                         GameObject recipe = Instantiate(recipePrefab, recipeSlot.transform);
                         recipe.GetComponent<Image>().sprite = uiManager.instance.RecipeIcons[y];
                         recipe.GetComponent<DragDrop>().staticRecipe = true;
                         recipe.GetComponent<DragDrop>().recipeIndex = i;
-                        Debug.LogWarning("Found same name" + names[x]);
                         break;
                     }
                 }
