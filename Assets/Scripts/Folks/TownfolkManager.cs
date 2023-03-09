@@ -6,6 +6,8 @@ public class TownfolkManager : MonoBehaviour
 {
     public static TownfolkManager instance;
 
+    public Townfolk SelectedFolk;
+
 [Header("Names")]
     public List<string> FolkMaleNames;
     public List<string> FolkFemaleNames;

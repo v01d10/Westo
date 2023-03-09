@@ -29,6 +29,6 @@ public class SideMenu : MonoBehaviour
             }
         });
 
-        FolkPanelButton.onClick.AddListener(() => TownfolksUI.instance.OpenFolkPanel());
+        FolkPanelButton.onClick.AddListener(() => TownfolksUI.instance.OpenFolkPanel(false));
     }
 }

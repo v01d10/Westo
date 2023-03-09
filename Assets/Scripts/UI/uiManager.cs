@@ -13,6 +13,7 @@ public class uiManager : MonoBehaviour
     public GameObject buildingMenu;
     public GameObject selectedBuilding;
 
+    public Sprite PlusSprite;
     public Sprite CancelSprite;
     public List<Sprite> RecipeIcons = new List<Sprite>();
 
@@ -51,6 +52,7 @@ public class uiManager : MonoBehaviour
 
     public void OpenBuildingMenu() {
 
+        CloseUI();
         WorldSpaceCanvas.SetActive(true);
 
         buildingMenu.SetActive(true);
@@ -64,11 +66,13 @@ public class uiManager : MonoBehaviour
 
                 processingUI.OpenProcessingMenu();
             }
-            if(selectedBuilding.GetComponent<Building>()){
+            if(selectedBuilding.GetComponent<BuildingProduction>()){
             
                 productionUI.OpenProductionPanel();
             }
         });
+
+        BuildingMenu.instance.WorkerPanelButton.onClick.AddListener(() => TownfolksUI.instance.OpenFolkPanel(true));
         
         buildingMenu.transform.position = selectedBuilding.transform.position;
     }
@@ -98,14 +102,18 @@ public class uiManager : MonoBehaviour
         if(ProcessUI.activeInHierarchy){
             processingUI.CloseProcessingMenu(true);
         }
+        if(TownfolksUI.instance.FolkUI.activeInHierarchy) {
+            TownfolksUI.instance.CloseFolkPanel();
+        }
+        if(TownfolksUI.instance.FolkDetailUI.gameObject.activeInHierarchy) {
+            TownfolksUI.instance.CloseFolkDetail();
+        }
     }
 
-    public void ButtonClickEffect(Button button) {
+    public void ButtonClickEffect(Button button, float amount, float time) {
 
-        button.transform.DOScale(new Vector3(.8f, .8f, .8f), .1f).onComplete = () => {
+        button.transform.DOScale(new Vector3(amount, amount, amount), time).onComplete = () => {
             button.transform.DOScale(new Vector3(1f, 1f, 1f), .1f);
         };
     }
-
-
 }

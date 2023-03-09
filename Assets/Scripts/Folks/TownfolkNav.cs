@@ -24,7 +24,7 @@ public class TownfolkNav : MonoBehaviour {
     public float CarryAmount1;
     public float CarryAmount2;
 
-    public Building AssociatedBuilding;
+    public Building AssignedBuilding;
     public Warehouse warehouse;
     public List<Goodie> CarriedGoodies = new List<Goodie>();
 
@@ -35,7 +35,7 @@ public class TownfolkNav : MonoBehaviour {
     }
 
     public void GoToLoad(){
-        Agent.SetDestination(AssociatedBuilding.transform.position);
+        Agent.SetDestination(AssignedBuilding.transform.position);
         Loading = true;
     }
 
@@ -45,6 +45,9 @@ public class TownfolkNav : MonoBehaviour {
     }
 
     public void LoadGoodies(){
+
+        BuildingProduction AssociatedBuilding = AssignedBuilding.GetComponent<BuildingProduction>();
+        
         for (int i = 0; i < AssociatedBuilding.ProducedGoods.Count; i++){
             if(!CarriedGoodies.Contains(AssociatedBuilding.ProducedGoods[i])) {
 
@@ -52,31 +55,31 @@ public class TownfolkNav : MonoBehaviour {
             }
         }
         
-        if(MaxCarryAmount > AssociatedBuilding.ProducedAmount0 && CarryAmount0 + CarryAmount1 + CarryAmount2 < MaxCarryAmount) {
-            CarryAmount0 += AssociatedBuilding.ProducedAmount0;
-            AssociatedBuilding.ProducedAmount0 = 0;
+        if(MaxCarryAmount > AssociatedBuilding.ProducedAmounts[0] && CarryAmount0 + CarryAmount1 + CarryAmount2 < MaxCarryAmount) {
+            CarryAmount0 += AssociatedBuilding.ProducedAmounts[0];
+            AssociatedBuilding.ProducedAmounts[0] = 0;
 
-            if(MaxCarryAmount - CarryAmount0 > AssociatedBuilding.ProducedAmount1 && CarryAmount0 + CarryAmount1 + CarryAmount2 < MaxCarryAmount){
-                CarryAmount1 += AssociatedBuilding.ProducedAmount1;
-                AssociatedBuilding.ProducedAmount1 = 0;
+            if(MaxCarryAmount - CarryAmount0 > AssociatedBuilding.ProducedAmounts[1] && CarryAmount0 + CarryAmount1 + CarryAmount2 < MaxCarryAmount){
+                CarryAmount1 += AssociatedBuilding.ProducedAmounts[1];
+                AssociatedBuilding.ProducedAmounts[1] = 0;
 
-                if(MaxCarryAmount - (CarryAmount0 + CarryAmount1) > AssociatedBuilding.ProducedAmount2 && CarryAmount0 + CarryAmount1 + CarryAmount2 < MaxCarryAmount){
-                    CarryAmount2 += AssociatedBuilding.ProducedAmount2;
-                    AssociatedBuilding.ProducedAmount2 = 0;
+                if(MaxCarryAmount - (CarryAmount0 + CarryAmount1) > AssociatedBuilding.ProducedAmounts[2] && CarryAmount0 + CarryAmount1 + CarryAmount2 < MaxCarryAmount){
+                    CarryAmount2 += AssociatedBuilding.ProducedAmounts[2];
+                    AssociatedBuilding.ProducedAmounts[2] = 0;
 
                 } else {
                     CarryAmount2 += MaxCarryAmount - (CarryAmount1 + CarryAmount0);
-                    AssociatedBuilding.ProducedAmount2 -= CarryAmount2;
+                    AssociatedBuilding.ProducedAmounts[2] -= CarryAmount2;
                 }
 
             } else {
                 CarryAmount1 += MaxCarryAmount - CarryAmount0;
-                AssociatedBuilding.ProducedAmount1 -= CarryAmount1;
+                AssociatedBuilding.ProducedAmounts[1] -= CarryAmount1;
             }
 
         } else {
             CarryAmount0 = MaxCarryAmount;
-            AssociatedBuilding.ProducedAmount0 -= CarryAmount0;
+            AssociatedBuilding.ProducedAmounts[0] -= CarryAmount0;
         }
 
         GoToUnload();
@@ -123,7 +126,7 @@ public class TownfolkNav : MonoBehaviour {
     private void OnTriggerEnter(Collider other) {
         print(other.transform);
 
-        if(other.GetComponentInParent<Building>() == AssociatedBuilding && Loading) {
+        if(other.GetComponentInParent<Building>() == AssignedBuilding && Loading) {
             LoadGoodies();
                 
         }

@@ -13,6 +13,7 @@ public class Townfolk : MonoBehaviour
 
     public TownfolkRole Role;
     public Transform ModelHolder;
+    public Sprite Icon;
 
 [Header("Basic Attributes")]
     bool Male;
@@ -24,7 +25,7 @@ public class Townfolk : MonoBehaviour
     public float AtPoints;
     public float Strength;
     public float Inteligence;
-    public float Agility;
+    public float Dexterity;
 
     public bool FolkSet;
 
@@ -62,7 +63,7 @@ public class Townfolk : MonoBehaviour
             Health = 101; Level = 1; ExpNeeded = 123;
             Strength = Random.Range(1, 4);
             Inteligence = Random.Range(1, 4);
-            Agility = Random.Range(1, 4);
+            Dexterity = Random.Range(1, 4);
 
             FolkSet = true;
         }
@@ -81,6 +82,35 @@ public class Townfolk : MonoBehaviour
             ExpNeeded *= 1.7f;
             Health *= 1.5f;
         }
+    }
+
+    public void IncreaseStat(int index) {
+        
+        if(AtPoints > 0) {
+
+            AtPoints--;
+
+            if(index == 0) {
+                Strength++;
+            } else if(index == 1) {
+                Dexterity++;
+            } else if (index == 2) {
+                Inteligence++;
+            }
+        }
+    }
+
+    public void AssignBuilding() {
+
+        uiManager.instance.selectedBuilding.GetComponent<Building>().WorkingFolks.Add(this);
+        Role = uiManager.instance.selectedBuilding.GetComponent<Building>().BuildingRole;
+    }
+
+    private void OnMouseDown() {
+        
+        uiManager.instance.CloseUI();
+        TownfolkManager.instance.SelectedFolk = this;
+        TownfolksUI.instance.OpenFolkDetail();
     }
 
 

@@ -9,7 +9,7 @@ using TMPro;
 
 public class ProductionUI : MonoBehaviour {
 
-    Building OpenedBuilding; 
+    BuildingProduction OpenedBuilding; 
 
     public TextMeshProUGUI BuildingNameText;
     public Button GatherButton;
@@ -42,7 +42,7 @@ public class ProductionUI : MonoBehaviour {
 
         uiManager.instance.CloseBuildingMenu();
         uiManager.instance.ProdUI.SetActive(true);
-        OpenedBuilding = uiManager.instance.selectedBuilding.GetComponent<Building>();
+        OpenedBuilding = uiManager.instance.selectedBuilding.GetComponent<BuildingProduction>();
 
         LoadMainText();
         LoadGoodies();
@@ -67,12 +67,12 @@ public class ProductionUI : MonoBehaviour {
         MaxProducedText.text = OpenedBuilding.MaxProduced.ToString();
 
         Produced0NameText.text = ("Produced - " + OpenedBuilding.ProducedGoods[0].GoodieName);
-        Produced0Text.text = (OpenedBuilding.ProducedAmount0 + " / " + (int)(OpenedBuilding.MaxProduced / OpenedBuilding.ProducedGoods.Count));
+        Produced0Text.text = (OpenedBuilding.ProducedAmounts[0] + " / " + (int)(OpenedBuilding.MaxProduced / OpenedBuilding.ProducedGoods.Count));
 
         if(OpenedBuilding.ProducedGoods.ElementAtOrDefault(1)) {
 
             Produced1NameText.text = ("Produced - " + OpenedBuilding.ProducedGoods[1].GoodieName);
-            Produced1Text.text = (OpenedBuilding.ProducedAmount1 + " / " + (int)(OpenedBuilding.MaxProduced / OpenedBuilding.ProducedGoods.Count));
+            Produced1Text.text = (OpenedBuilding.ProducedAmounts[1] + " / " + (int)(OpenedBuilding.MaxProduced / OpenedBuilding.ProducedGoods.Count));
         } else {
 
             Produced1NameText.text = "None";
@@ -82,7 +82,7 @@ public class ProductionUI : MonoBehaviour {
         if(OpenedBuilding.ProducedGoods.ElementAtOrDefault(2)) {
 
             Produced2NameText.text = ("Produced - " + OpenedBuilding.ProducedGoods[2].GoodieName);
-            Produced2Text.text = (OpenedBuilding.ProducedAmount1 + " / " + (int)(OpenedBuilding.MaxProduced / OpenedBuilding.ProducedGoods.Count));
+            Produced2Text.text = (OpenedBuilding.ProducedAmounts[2] + " / " + (int)(OpenedBuilding.MaxProduced / OpenedBuilding.ProducedGoods.Count));
         } else {
 
             Produced2NameText.text = "None";

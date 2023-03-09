@@ -46,15 +46,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75b77ae874053c143bfde620349421fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  recipesAvailable:
-  - {fileID: 3041445856905233049, guid: 4f14b68f7a7efec4580d9acb2634ab9d, type: 3}
-  - {fileID: 596481018164108003, guid: e55a9a71a7a0f0344b1d4127a761c1fb, type: 3}
-  processingQueue: []
-  AssignedWorker: {fileID: 0}
+  BuildingRole: 3
   BuildingHealth: 100
-  BuildingProcessSlots: 3
   BuildingLevel: 1
   UpgradePrice: 290
+  WorkersCapacity: 1
+  WorkingFolks: []
+  recipesAvailable:
+  - {fileID: 11400000, guid: 4c681e4349a8fb6408c302c66172ece3, type: 2}
+  - {fileID: 11400000, guid: e9f59a636ee94b341a009f42685f3b1b, type: 2}
+  processingQueue: []
+  BuildingProcessSlots: 3
   ProcessTime: 0
   ProcessTimer: 0
   Processing: 0

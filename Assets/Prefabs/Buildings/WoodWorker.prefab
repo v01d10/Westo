@@ -43,22 +43,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 8842813639642324864}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04cc46948c217a6488fedeb4e361eff3, type: 3}
+  m_Script: {fileID: 11500000, guid: 896a23a2712364240a22151c0f1cca15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   BuildingHealth: 101
   BuildingLevel: 1
-  UpgradePrice: 210
+  UpgradePrice: 123
+  WorkersCapacity: 1
+  WorkingFolks:
+  - {fileID: 0}
   ProductionRate: 0.3
-  MaxProduced: 70
+  MaxProduced: 100
   ProductionTime: 10
   ProductionTimer: 0
-  ProducedAmount0: 0
-  ProducedAmount1: 0
-  ProducedAmount2: 0
+  ProducedAmounts:
+  - 0
+  - 0
+  - 0
   ProducedGoods:
   - {fileID: 11400000, guid: b6a843acd1c73da47b8c46cbe245dbb4, type: 2}
-  WorkingFolks: []
+  - {fileID: 11400000, guid: 3b45f2b2f287f3b48a1e9f8dcce98396, type: 2}
 --- !u!65 &7932422733030203611
 BoxCollider:
   m_ObjectHideFlags: 0

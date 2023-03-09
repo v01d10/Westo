@@ -9,6 +9,10 @@ public class FaceCamera : MonoBehaviour
 
     void Start() {
         localTarnsform = GetComponent<Transform>();
+        
+        if(lookAt == null) {
+            lookAt = Camera.main.transform;
+        }
     }
 
     void Update() {

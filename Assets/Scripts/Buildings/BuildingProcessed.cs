@@ -3,24 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class BuildingProcessed : MonoBehaviour {
+public class BuildingProcessed : Building {
 
     public List<Recipe> recipesAvailable = new List<Recipe>();
     public List<GameObject> processingQueue = new List<GameObject>(); 
 
-    List<GameObject> slots;
-    
-    public List<Townfolk> WorkingFolks;
-    
-    public float BuildingHealth;
     public float BuildingProcessSlots;
-    public float BuildingLevel;
-    public float UpgradePrice;
 
     public float ProcessTime;
     public float ProcessTimer;
     public bool Processing;
 
+    List<GameObject> slots;
     ProcessingUI processingUI;
     
     private void Start() {
@@ -144,13 +138,4 @@ public class BuildingProcessed : MonoBehaviour {
             StartCoroutine("processTimer");
         } 
     }
-
-    private void OnMouseDown() {
-        if(!uiManager.IsMouseOverUIIgnores()){
-
-            uiManager.instance.selectedBuilding = this.gameObject;
-            uiManager.instance.OpenBuildingMenu();
-        }
-    }
-
 }
