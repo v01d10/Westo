@@ -36,19 +36,22 @@ public class DragDrop : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     public void OnBeginDrag(PointerEventData eventData)
     {
         
-        instRecipe = Instantiate(eventData.pointerPressRaycast.gameObject, eventData.position, Quaternion.identity);
-        instRecipe.transform.SetParent(canvas.transform);
-        instRecipe.GetComponent<DragDrop>().staticRecipe = false;
-        eventData.pointerDrag = instRecipe;
+        if(uiManager.instance.selectedBuilding.GetComponent<BuildingProcessed>().WorkingFolks.Count > 0) {
 
-        instRecipe.transform.localScale = new Vector3( 1.3f, 1.3f, 1.3f);
-        instRecipe.GetComponent<CanvasGroup>().blocksRaycasts = false;
-        instRecipe.GetComponent<CanvasGroup>().alpha = 0.6f;
+            instRecipe = Instantiate(eventData.pointerPressRaycast.gameObject, eventData.position, Quaternion.identity);
+            instRecipe.transform.SetParent(canvas.transform);
+            instRecipe.GetComponent<DragDrop>().staticRecipe = false;
+            eventData.pointerDrag = instRecipe;
 
-        Debug.Log(instRecipe);
-        instRecipe.GetComponent<DragDrop>().usedRecipe = uiManager.instance.processingUI.openedBuilding.recipesAvailable[recipeIndex];
-        
-        cameraController.enabled = false;
+            instRecipe.transform.localScale = new Vector3( 1.3f, 1.3f, 1.3f);
+            instRecipe.GetComponent<CanvasGroup>().blocksRaycasts = false;
+            instRecipe.GetComponent<CanvasGroup>().alpha = 0.6f;
+
+            Debug.Log(instRecipe);
+            instRecipe.GetComponent<DragDrop>().usedRecipe = uiManager.instance.processingUI.openedBuilding.recipesAvailable[recipeIndex];
+            
+            cameraController.enabled = false;
+        }
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -60,49 +63,59 @@ public class DragDrop : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     }
 
     public void OnEndDrag(PointerEventData eventData) {
-        Debug.Log("OnEndDrag");
-        transform.localScale = new Vector3( 1f, 1f, 1f);
-        
-            Debug.LogWarning(eventData.pointerCurrentRaycast.gameObject);
-            BuildingProcessed buildingProcessed = uiManager.instance.processingUI.openedBuilding;
+        if(uiManager.instance.selectedBuilding.GetComponent<BuildingProcessed>().WorkingFolks.Count > 0) {
+            Debug.Log("OnEndDrag");
+            transform.localScale = new Vector3( 1f, 1f, 1f);
+            
+                Debug.LogWarning(eventData.pointerCurrentRaycast.gameObject);
+                BuildingProcessed buildingProcessed = uiManager.instance.processingUI.openedBuilding;
 
-            if(eventData.pointerCurrentRaycast.gameObject != null){
-                if(!eventData.pointerCurrentRaycast.gameObject.GetComponent<DropSlot>() || buildingProcessed.processingQueue.Count >= uiManager.instance.processingUI.ActiveSlots.Count){
-                    
-                    Destroy(gameObject);
-                } else {
-
-                    if(!buildingProcessed.processingQueue.Any()){
-
-                        transform.position = uiManager.instance.processingUI.ActiveSlots[0].transform.position;
-                        slot = uiManager.instance.processingUI.ActiveSlots[0].GetComponent<DropSlot>();
+                if(eventData.pointerCurrentRaycast.gameObject != null){
+                    if(!eventData.pointerCurrentRaycast.gameObject.GetComponent<DropSlot>() || buildingProcessed.processingQueue.Count >= uiManager.instance.processingUI.ActiveSlots.Count){
+                        
+                        Destroy(gameObject);
                     } else {
 
-                        transform.position = uiManager.instance.processingUI.ActiveSlots[buildingProcessed.processingQueue.Count].transform.position;
-                        slot = uiManager.instance.processingUI.ActiveSlots[buildingProcessed.processingQueue.Count].GetComponent<DropSlot>();
-                    }
+                        if(!buildingProcessed.processingQueue.Any()){
 
-                    slot.UsedRecipe = gameObject;
-                    slot.slotTimer.gameObject.SetActive(true);
-                    usedSlot = slot.gameObject;
-                    
-                    buildingProcessed.processingQueue.Add(gameObject);
-                    
-                    buildingProcessed.ProcessTime = buildingProcessed.recipesAvailable[recipeIndex].processingTime;
-                    slot.gameObject.GetComponentInChildren<TextMeshProUGUI>().text = buildingProcessed.recipesAvailable[recipeIndex].processingTime.ToString();
-                    
-                    if(!buildingProcessed.Processing) buildingProcessed.Process();
+                            transform.position = uiManager.instance.processingUI.ActiveSlots[0].transform.position;
+                            slot = uiManager.instance.processingUI.ActiveSlots[0].GetComponent<DropSlot>();
+                        } else {
+
+                            transform.position = uiManager.instance.processingUI.ActiveSlots[buildingProcessed.processingQueue.Count].transform.position;
+                            slot = uiManager.instance.processingUI.ActiveSlots[buildingProcessed.processingQueue.Count].GetComponent<DropSlot>();
+                        }
+
+                        slot.UsedRecipe = gameObject;
+                        slot.slotTimer.gameObject.SetActive(true);
+                        usedSlot = slot.gameObject;
+                        
+                        buildingProcessed.processingQueue.Add(gameObject);
+                        
+                        buildingProcessed.ProcessTime = buildingProcessed.recipesAvailable[recipeIndex].processingTime;
+                        slot.gameObject.GetComponentInChildren<TextMeshProUGUI>().text = buildingProcessed.recipesAvailable[recipeIndex].processingTime.ToString();
+                        
+                        if(!buildingProcessed.Processing) buildingProcessed.Process();
+                    }
+                } else {
+                    Destroy(gameObject);
                 }
-            } else {
-                Destroy(gameObject);
-            }
-        
-        cameraController.enabled = true;
+            
+            cameraController.enabled = true;
+        }
     }
 
     public void OnPointerDown(PointerEventData eventData) {
-        Debug.Log("OnPointerDown");
-        
-    }
+        if(uiManager.instance.selectedBuilding.GetComponent<BuildingProcessed>().WorkingFolks.Count > 0) {
+            Debug.Log("OnPointerDown");
+        } else {
 
+            uiManager.instance.OpenPopUp("This building got no workers? Do you wanna assign?");
+            PopUp.instance.AssignButtons(() => {
+                ProcessingUI.instance.CloseProcessingMenu(true, false);
+                TownfolksUI.instance.OpenFolkPanel(true);
+                uiManager.instance.ClosePopUp();
+            }, () => uiManager.instance.ClosePopUp());
+        }
+    }
 }

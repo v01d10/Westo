@@ -15,6 +15,12 @@ public class Townfolk : MonoBehaviour
     public Transform ModelHolder;
     public Sprite Icon;
 
+    public Building AssignedBuilding;
+    public TownfolkGroup AssignedGroup;
+
+    public FolkNav navigation;
+    public GameObject selectedFolkSlot;
+
 [Header("Basic Attributes")]
     bool Male;
     public float Health;
@@ -31,6 +37,7 @@ public class Townfolk : MonoBehaviour
 
     private void Start() {
         
+        navigation = GetComponent<FolkNav>();
         SetThisFolk();
     }
 
@@ -103,14 +110,18 @@ public class Townfolk : MonoBehaviour
     public void AssignBuilding() {
 
         uiManager.instance.selectedBuilding.GetComponent<Building>().WorkingFolks.Add(this);
+        AssignedBuilding = uiManager.instance.selectedBuilding.GetComponent<Building>();
         Role = uiManager.instance.selectedBuilding.GetComponent<Building>().BuildingRole;
     }
 
     private void OnMouseDown() {
         
-        uiManager.instance.CloseUI();
-        TownfolkManager.instance.SelectedFolk = this;
-        TownfolksUI.instance.OpenFolkDetail();
+        if(ModelHolder.gameObject.activeInHierarchy) {
+
+            uiManager.instance.CloseUI();
+            TownfolkManager.instance.SelectedFolk = this;
+            TownfolksUI.instance.OpenFolkDetail();
+        }
     }
 
 

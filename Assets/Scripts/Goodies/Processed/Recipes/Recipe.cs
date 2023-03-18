@@ -15,6 +15,7 @@ public class Recipe : ScriptableObject {
     public float ingredientCost2;
 
     public float processingTime;
+    public float xpToGive;
 
 
 }

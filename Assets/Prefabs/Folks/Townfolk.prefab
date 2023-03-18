@@ -41,9 +41,10 @@ GameObject:
   m_Component:
   - component: {fileID: 6844458863730053525}
   - component: {fileID: 6844458863730053526}
+  - component: {fileID: 4216834798720114613}
   - component: {fileID: 6844458863730053524}
   - component: {fileID: 6844458863730053530}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Townfolk
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -82,6 +83,8 @@ MonoBehaviour:
   Role: 0
   ModelHolder: {fileID: 5880293657609987691}
   Icon: {fileID: 21300000, guid: 4905f95e5885e0343a303b7e312a8d5e, type: 3}
+  AssignedBuilding: {fileID: 0}
+  navigation: {fileID: 0}
   Health: 0
   Level: 0
   Exp: 0
@@ -89,8 +92,22 @@ MonoBehaviour:
   AtPoints: 0
   Strength: 0
   Inteligence: 0
-  Agility: 0
+  Dexterity: 0
   FolkSet: 0
+--- !u!114 &4216834798720114613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6844458863730053527}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c8d1262de8ddbc4486e28484f455e8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sphereCollider: {fileID: 0}
+  Unloading: 0
 --- !u!195 &6844458863730053524
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -124,5 +141,5 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 2
+  m_Radius: 1.5
   m_Center: {x: 0, y: 0, z: 0}

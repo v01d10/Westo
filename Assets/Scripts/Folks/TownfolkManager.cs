@@ -18,14 +18,17 @@ public class TownfolkManager : MonoBehaviour
     public List<GameObject> FolkMaleModels;
     public List<GameObject> FolkFemaleModels;
 
-[Header("List")]
+[Header("Folks")]
+    public GameObject FolkPrefab;
     public List<Townfolk> Townfolks = new List<Townfolk>();
 
-    public GameObject FolkPrefab;
+[Header("Groups")]
+    public int GroupIndex;
+    public List<TownfolkGroup> TownfolkGroups = new List<TownfolkGroup>();
+
 
     private void Awake() {
         instance = this;
-
         AddFolk(5);
     }
 
@@ -36,5 +39,9 @@ public class TownfolkManager : MonoBehaviour
             GameObject Folk = Instantiate(FolkPrefab, gameObject.transform);
             Townfolks.Add(Folk.GetComponent<Townfolk>());
         }
+    }
+
+    public void AddFolkIntoGroup(int groupIndex, Townfolk folk) {
+        TownfolkGroups[groupIndex].FolksInThisGroup.Add(folk);
     }
 }

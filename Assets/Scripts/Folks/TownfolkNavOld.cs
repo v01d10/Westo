@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class TownfolkNav : MonoBehaviour {
+public class TownfolkNavOld : MonoBehaviour {
     
     public Townfolk thisFolk;
 

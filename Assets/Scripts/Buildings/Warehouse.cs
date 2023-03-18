@@ -6,8 +6,6 @@ public class Warehouse : MonoBehaviour
 {
     public static Warehouse instance;
     
-    public float Money;
-
     public List<Goodie> StoredGoodies = new List<Goodie>();
     public List<Goodie> StoredGoodiesMine = new List<Goodie>();
     public List<Goodie> StoredGoodiesWoods = new List<Goodie>();

@@ -18,9 +18,9 @@ public class Building : MonoBehaviour
 
     public void UpgradeBuilding(GameObject building) {
 
-        if (Warehouse.instance.Money >= UpgradePrice) {
+        if (Player.instance.Money >= UpgradePrice) {
             BuildingLevel++;
-            Warehouse.instance.Money -= UpgradePrice;
+            Player.instance.Money -= UpgradePrice;
             UpgradePrice *= 1.7f;
             
             if(BuildingLevel == 6 || BuildingLevel == 12) {

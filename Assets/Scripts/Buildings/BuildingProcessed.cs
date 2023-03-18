@@ -49,7 +49,12 @@ public class BuildingProcessed : Building {
             HandleUI(false);
 
             for (int i = 0; i < WorkingFolks.Count; i++) {
-                WorkingFolks[i].AddExp(0.05f);
+                WorkingFolks[i].AddExp(recipe.xpToGive);
+
+                WorkingFolks[i].navigation.GoTo(Player.instance.PlayerWarehouse.transform.position);
+                if(!WorkingFolks[i].ModelHolder.gameObject.activeInHierarchy) WorkingFolks[i].ModelHolder.gameObject.SetActive(true);
+                WorkingFolks[i].navigation.sphereCollider.enabled = true;
+                WorkingFolks[i].navigation.Unloading = true;
             }
         } else {
 
@@ -87,7 +92,7 @@ public class BuildingProcessed : Building {
         }
    
         recipe.FinalProduct.ProcessedGoodieAmount += (BuildingLevel * 1.3f);
-        
+ 
     }
 
     public void HandleUI(bool Cancel){
@@ -126,8 +131,8 @@ public class BuildingProcessed : Building {
     }
 
     IEnumerator processTimer() {
-        
-        if(uiManager.instance.ProcessUI.activeInHierarchy && processingUI.openedBuilding == this) {
+                
+        if(uiManager.instance.ProcessUI.activeInHierarchy && processingUI.ActiveSlots.Any()) {
             processingUI.ActiveSlots[0].GetComponent<DropSlot>().slotTimer.text = ProcessTimer.ToString();
         }
         
@@ -136,6 +141,6 @@ public class BuildingProcessed : Building {
             yield return new WaitForSeconds(1);
             ProcessTimer--;
             StartCoroutine("processTimer");
-        } 
+        }
     }
 }

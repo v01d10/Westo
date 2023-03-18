@@ -36,7 +36,10 @@ public class MobileCameraController : MonoBehaviour
                 
                 Camera.transform.Translate(Delta1, Space.World);
 
-                uiManager.instance.CloseUI();
+                if(!TownfolksUI.instance.Positioning) {
+
+                    uiManager.instance.CloseUI();
+                }
             }
         }
     }

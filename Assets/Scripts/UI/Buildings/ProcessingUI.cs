@@ -11,6 +11,8 @@ using DG.Tweening;
 
 public class ProcessingUI : MonoBehaviour
 {
+    public static ProcessingUI instance;
+
     public GameObject processSlotPrefab;
 
     public GameObject addRecipeSlotPrefab;
@@ -27,6 +29,10 @@ public class ProcessingUI : MonoBehaviour
 
     GameObject addSlot;
 
+    void Awake() {
+        instance = this;
+    }
+
     public void OpenProcessingMenu() {
 
         uiManager.instance.CloseBuildingMenu();
@@ -35,7 +41,7 @@ public class ProcessingUI : MonoBehaviour
 
         openedBuilding = uiManager.instance.selectedBuilding.GetComponent<BuildingProcessed>();
         
-        CloseProcessingMenu(false);
+        CloseProcessingMenu(false, false);
 
         SpawnSlots(false);
         SpawnRecipes();
@@ -47,7 +53,7 @@ public class ProcessingUI : MonoBehaviour
 
     }
 
-    public void CloseProcessingMenu(bool Complete) {
+    public void CloseProcessingMenu(bool complete, bool resetBuilding) {
 
         foreach (var slot in ActiveSlots) {
             Destroy(slot);
@@ -64,9 +70,11 @@ public class ProcessingUI : MonoBehaviour
 
         Destroy(addSlot);
 
-        if(Complete){
-            
-            uiManager.instance.selectedBuilding = null;
+        if(complete){
+            if(resetBuilding){
+
+                uiManager.instance.selectedBuilding = null;
+            }
             uiManager.instance.ProcessUI.transform.DOScale(new Vector3(.1f, .1f, .1f), 0.2f).onComplete = () => {
                 uiManager.instance.ProcessUI.SetActive(false);
             };

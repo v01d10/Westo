@@ -17,6 +17,8 @@ public class uiManager : MonoBehaviour
     public Sprite CancelSprite;
     public List<Sprite> RecipeIcons = new List<Sprite>();
 
+    public Button ConfirmButton;
+
 [Header("Production")]
     public ProductionUI productionUI;
     public GameObject ProdUI;
@@ -24,6 +26,9 @@ public class uiManager : MonoBehaviour
 [Header("Processing")]
     public ProcessingUI processingUI;
     public GameObject ProcessUI;
+
+[Header("PopUP")]
+    public GameObject PopUpPanel;
 
     private void Awake() {
         
@@ -79,16 +84,26 @@ public class uiManager : MonoBehaviour
 
     public void CloseBuildingMenu() {
 
-        BuildingMenu.instance.UpgradeButton.onClick.RemoveAllListeners();
-        BuildingMenu.instance.BuildingPanelButton.onClick.RemoveAllListeners();
-        BuildingMenu.instance.WorkerPanelButton.onClick.RemoveAllListeners();
+        buildingMenu.GetComponent<BuildingMenu>().UpgradeButton.onClick.RemoveAllListeners();
+        buildingMenu.GetComponent<BuildingMenu>().BuildingPanelButton.onClick.RemoveAllListeners();
+        buildingMenu.GetComponent<BuildingMenu>().WorkerPanelButton.onClick.RemoveAllListeners();
 
         buildingMenu.transform.DOScale(new Vector3(0.3f, 0.3f, 0.3f), 0.2f).onComplete = (() => {
 
             WorldSpaceCanvas.SetActive(false);
             buildingMenu.SetActive(false);
         });
+    }
 
+    public void OpenPopUp(string text) {
+
+        PopUpPanel.SetActive(true);
+        PopUp.instance.SetText(text);
+    }
+
+    public void ClosePopUp() {
+
+        PopUpPanel.SetActive(false);
     }
 
     public void CloseUI() {
@@ -100,7 +115,7 @@ public class uiManager : MonoBehaviour
             productionUI.CloseProductionPanel();
         }
         if(ProcessUI.activeInHierarchy){
-            processingUI.CloseProcessingMenu(true);
+            processingUI.CloseProcessingMenu(true, true);
         }
         if(TownfolksUI.instance.FolkUI.activeInHierarchy) {
             TownfolksUI.instance.CloseFolkPanel();

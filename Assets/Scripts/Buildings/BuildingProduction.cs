@@ -45,6 +45,11 @@ public class BuildingProduction : Building
 
             for (int i = 0; i < WorkingFolks.Count; i++) {
                 WorkingFolks[i].AddExp(0.03f);
+
+                WorkingFolks[i].navigation.GoTo(Player.instance.PlayerWarehouse.transform.position);
+                WorkingFolks[i].navigation.ActivateModel();
+                WorkingFolks[i].navigation.sphereCollider.enabled = true;
+                WorkingFolks[i].navigation.Unloading = true;
             }
             
             Debug.Log("Producing goodies");
@@ -99,6 +104,7 @@ public class BuildingProduction : Building
 
         uiManager.instance.productionUI.LoadMainText();
         print("Gathered Goodies");
+
     }
 
 }
