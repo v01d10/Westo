@@ -43,7 +43,7 @@ public class Building : MonoBehaviour
 
     private void OnMouseDown(){
 
-        if (!uiManager.IsMouseOverUIIgnores()){
+        if (!uiManager.IsMouseOverUIIgnores() && GameManager.instance.State == GameState.Day){
 
             uiManager.instance.selectedBuilding = this.gameObject;
             uiManager.instance.OpenBuildingMenu();

@@ -4,6 +4,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum GameState {
+    Day,
+    Night
+
+}
+
 public class GameManager : MonoBehaviour {
 
     public static GameManager instance;
@@ -53,15 +59,9 @@ public class GameManager : MonoBehaviour {
     }
 
     void SetNight() {
-        NightButton.gameObject.SetActive(false);
-        Camera.main.GetComponentInParent<MobileCameraController>().enabled = false;
-        
+        ShowNightButton();      
         NightManager.instance.StartNextNight();
     }
 }
 
-public enum GameState {
-    Day,
-    Night
 
-}

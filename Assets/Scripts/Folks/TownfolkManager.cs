@@ -42,6 +42,10 @@ public class TownfolkManager : MonoBehaviour
     }
 
     public void AddFolkIntoGroup(int groupIndex, Townfolk folk) {
+        for (int i = 0; i < TownfolkGroups.Count; i++) {
+            if(TownfolkGroups[i].FolksInThisGroup.Contains(folk)) 
+                TownfolkGroups[i].FolksInThisGroup.Remove(folk);
+        }
         TownfolkGroups[groupIndex].FolksInThisGroup.Add(folk);
     }
 }

@@ -8,10 +8,16 @@ public class Enemy : MonoBehaviour {
     
     public float EnemyMaxHealth;
     public float EnemyHealth;
-    public float EnemyDamage;
     public float EnemyArmor;
 
+    public float EnemyDamage;
+    public float EnemyAttackRate;
+    public float EnemyRange;
+
     public float ExpToGive;
+
+    public Transform hpBar;
+    public GameObject hpBarHolder;
 
 [Header("Spawn")]
     public int StartingWave;
@@ -31,6 +37,24 @@ public class Enemy : MonoBehaviour {
 
         EnemyHealth = EnemyMaxHealth;
         StartCoroutine("FindTarget");
+    }
+
+    public void SubtractHealth(float amount) {
+
+        if(EnemyHealth - amount > 0) {
+            EnemyHealth -= amount;
+        } else {
+            EnemyHealth = 0;
+            Death();
+        }
+    
+        if(!hpBarHolder.activeInHierarchy)
+            hpBarHolder.SetActive(true);
+        hpBar.localScale = new Vector3((EnemyHealth / EnemyMaxHealth) , hpBar.localScale.y, hpBar.localScale.z);
+    }
+
+    void Death() {
+        Destroy(gameObject);
     }
 
     IEnumerator FindTarget() {
@@ -56,16 +80,35 @@ public class Enemy : MonoBehaviour {
                 }
             }
 
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(.6f);
             StartCoroutine("FindTarget");
         } else {
 
-            GoToTarget();
-            yield return null;   
+            StartCoroutine("Attack");
+            yield return null;
         }
 
     }
 
+    IEnumerator Attack() {
+
+        if(target != null) {
+
+            GoToTarget();
+            float dist = Vector3.Distance(transform.position, target.position);
+            if(dist < EnemyRange) {
+                target.GetComponent<FolkBase>().SubtractHealth(EnemyDamage);
+                print("Attacking " + target.name);
+            }
+
+            yield return new WaitForSeconds(EnemyAttackRate);
+            StartCoroutine("Attack"); 
+        } else {
+            StartCoroutine("FindTarget");
+            yield return null;
+        }
+    }
+    
     public void GoToTarget() {
 
         agent.SetDestination(target.position);

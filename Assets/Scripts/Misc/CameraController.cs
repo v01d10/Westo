@@ -1,38 +1,44 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class CameraController : MonoBehaviour
 {
+    public Vector3 defaultCamPosition;
 
-    public float movementSpeed;
-    public float movementTime;
+    public Transform hero;
 
-    public Vector3 newPosition;
+    public float MoveTime;
 
-    private void Start() {
-        newPosition = transform.position;
+    CameraFollow camFollow;
+    MobileCameraController mobileCamController;
+
+    private void Awake() {
+        GameManager.OnGameStateChanged += GameManagerOnGameStateChanged;
+        
+        camFollow = GetComponent<CameraFollow>();
+        mobileCamController = GetComponent<MobileCameraController>();
     }
 
-    private void Update() {
-        HandleMovementInput();
-    }
+    private void OnDestroy() { GameManager.OnGameStateChanged -= GameManagerOnGameStateChanged; }
 
-    void HandleMovementInput() {
-        if(Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) {
+    private void GameManagerOnGameStateChanged(GameState state) {
+        if(state == GameState.Day) {
+            camFollow.canMove = false;
+            Camera.main.transform.DOMove(defaultCamPosition, MoveTime);
+            
+            camFollow.enabled = false;
+            mobileCamController.enabled = true;
+        }
+        if(state == GameState.Night){
+            camFollow.cam.DOMove(new Vector3 (camFollow.player.position.x, camFollow.cameraHeight, camFollow.player.position.z + camFollow.cameraOffset), MoveTime).onComplete = () => {
+                camFollow.canMove = true;
+            };
 
-            newPosition += (transform.forward * movementSpeed);
+            camFollow.enabled = true;
+            mobileCamController.enabled = false;
         }
-        if(Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)){
-            newPosition += (transform.forward * -movementSpeed);
-        }
-        if(Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)){
-            newPosition += (transform.right * movementSpeed);
-        }
-        if(Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)){
-            newPosition += (transform.right * -movementSpeed);
-        }
-
-        transform.position = Vector3.Lerp(transform.position, newPosition, Time.deltaTime * movementSpeed);
+        
     }
 }

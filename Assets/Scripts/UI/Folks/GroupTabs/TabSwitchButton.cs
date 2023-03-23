@@ -19,15 +19,18 @@ public class TabSwitchButton : MonoBehaviour
         ThisButtonText = GetComponentInChildren<TextMeshProUGUI>();
 
         if(DefaultButton) {
-            ASsignButton();
+            AsignDefaultButton();
         }
     }
 
-    void ASsignButton() {
+    void AsignDefaultButton() {
+        
+        ThisTabButton.onClick.RemoveAllListeners();
         ThisTabButton.onClick.AddListener(() => {
-            TabHandler.instance.CloseTabs();
-            TownfolksUI.instance.DefaultTab.SetActive(true);
-            TabHandler.instance.UsedTab = TownfolksUI.instance.DefaultTab;
+
+            TabHandler.instance.OpenTab(TabHandler.instance.DefaultTab);
+            if(!TownfolksUI.instance.Grouping)
+                TownfolkManager.instance.GroupIndex = 0;
         });
     }
 }

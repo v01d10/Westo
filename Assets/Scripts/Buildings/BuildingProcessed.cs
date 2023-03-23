@@ -51,10 +51,13 @@ public class BuildingProcessed : Building {
             for (int i = 0; i < WorkingFolks.Count; i++) {
                 WorkingFolks[i].AddExp(recipe.xpToGive);
 
-                WorkingFolks[i].navigation.GoTo(Player.instance.PlayerWarehouse.transform.position);
-                if(!WorkingFolks[i].ModelHolder.gameObject.activeInHierarchy) WorkingFolks[i].ModelHolder.gameObject.SetActive(true);
-                WorkingFolks[i].navigation.sphereCollider.enabled = true;
-                WorkingFolks[i].navigation.Unloading = true;
+                if(GameManager.instance.State == GameState.Day) {
+
+                    WorkingFolks[i].navigation.GoTo(Player.instance.PlayerWarehouse.transform.position);
+                    if(!WorkingFolks[i].ModelHolder.gameObject.activeInHierarchy) WorkingFolks[i].ModelHolder.gameObject.SetActive(true);
+                    WorkingFolks[i].navigation.sphereCollider.enabled = true;
+                    WorkingFolks[i].navigation.Unloading = true;
+                }
             }
         } else {
 

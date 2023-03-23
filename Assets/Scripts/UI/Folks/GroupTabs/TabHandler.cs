@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,6 +14,8 @@ public class TabHandler : MonoBehaviour
     public GameObject TabPrefab;
 
     public GameObject UsedTab;
+    public GameObject DefaultTab;
+
 
     public List<TabSwitchButton> TabButtons = new List<TabSwitchButton>();
     public List<GameObject> Tabs = new List<GameObject>();
@@ -37,26 +40,46 @@ public class TabHandler : MonoBehaviour
         GameObject tabButton = Instantiate(TabButtonPrefab, TabButtonHolder);
         TabButtons.Add(tabButton.GetComponent<TabSwitchButton>());
 
-        tabButton.GetComponent<TabSwitchButton>().ThisButtonText.text = (TabButtons.Count).ToString();
+        tabButton.GetComponent<TabSwitchButton>().ThisButtonText.text = (TabButtons.Count - 1).ToString();
         tabButton.GetComponent<TabSwitchButton>().AssignedTab = tabToAssign;
         tabToAssign.GetComponent<TownfolkGroup>().AssignedTabButton = tabButton;
         tabButton.GetComponent<TabSwitchButton>().ThisTabButton.onClick.AddListener(() => { SwitchTabs(tabToAssign); });
+        
+        OpenTab(DefaultTab);
     }
 
     public void SwitchTabs(GameObject tabToSwitch) {
 
-        if(!TownfolksUI.instance.Grouping){
+        if(!TownfolksUI.instance.Grouping) {
 
-            UsedTab.SetActive(false);
-            tabToSwitch.SetActive(true);
+            UsedTab = tabToSwitch;
+            TownfolkManager.instance.GroupIndex = TownfolkManager.instance.TownfolkGroups.IndexOf(tabToSwitch.GetComponent<TownfolkGroup>());
         }
 
-        UsedTab = tabToSwitch;
+        OpenTab(tabToSwitch);
+    }
+
+    public void OpenTab(GameObject tabToOpen) {
+        CloseTabs();
+        tabToOpen.SetActive(true);
+        if(!TownfolksUI.instance.Grouping)
+            UsedTab = tabToOpen;
+
+        tabToOpen.GetComponent<TownfolkGroup>().AssignedTabButton.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
     }
 
     public void CloseTabs() {
         for (int i = 0; i < Tabs.Count; i++) {
-            Tabs[i].SetActive(false);
+            if(DefaultTab.activeInHierarchy) {
+
+                DefaultTab.GetComponent<TownfolkGroup>().AssignedTabButton.transform.localScale = new Vector3(1f, 1f, 1f);
+                DefaultTab.SetActive(false);
+            }
+            if(Tabs[i].activeInHierarchy) {
+
+                Tabs[i].GetComponent<TownfolkGroup>().AssignedTabButton.transform.localScale = new Vector3(1f, 1f, 1f);
+                Tabs[i].SetActive(false);
+            }
         }
     }
 }

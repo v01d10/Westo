@@ -16,11 +16,27 @@ public class FolkNav : MonoBehaviour {
         agent  = GetComponent<NavMeshAgent>();
         folk = GetComponent<Townfolk>();
         sphereCollider = transform.GetComponent<SphereCollider>();
+        GameManager.OnGameStateChanged += GameManagerOnGameStateChanged;
+    }
+    
+    private void OnDestroy() {
+        GameManager.OnGameStateChanged -= GameManagerOnGameStateChanged;
+    }
+    
+    private void GameManagerOnGameStateChanged(GameState state) {
+        if(state == GameState.Night) {
+
+            if(folk.AssignedBuilding != null) {
+
+                GoTo(folk.AssignedBuilding.transform.position);
+            }
+        }
     }
 
     public void GoTo(Vector3 target) {
         agent.SetDestination(target);
     }
+
 
     private void OnTriggerEnter(Collider other) {
         

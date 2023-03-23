@@ -6,6 +6,8 @@ public class NightManager : MonoBehaviour
 {
     public static NightManager instance;
 
+    public GameObject Joysticks;
+
     public int NightIndex;
 
     private void Awake() {
@@ -16,10 +18,12 @@ public class NightManager : MonoBehaviour
 
         MakeSunset();
         EnemySpawner.instance.StartCoroutine("SpawnEnemies");
+        Joysticks.SetActive(true); 
     }
 
     public void EndNight() {
-
+        
+        Joysticks.SetActive(false); 
     }
 
     public void MakeSunset() {

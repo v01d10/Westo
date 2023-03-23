@@ -27,10 +27,11 @@ public class TownfolksUI : MonoBehaviour
     public FolkDetailPanel FolkDetailUI;
 
 [Header("Grouping")]
-    public Button GroupingButton;
     public GameObject GroupBackgroundPrefab;
-    public GameObject DefaultTab;
     public Transform FolkScrollBackground;
+
+    public Button CreateGroupButton;
+    public Button GroupingButton;
     public bool Grouping;
 
 [Header("Positioning")]
@@ -41,6 +42,7 @@ public class TownfolksUI : MonoBehaviour
 
     private void Awake() {
         instance = this;
+        AssignCreateGroupButton();
     }
 
     public void OpenFolkPanel(bool building) {
@@ -55,16 +57,15 @@ public class TownfolksUI : MonoBehaviour
         if(building != true) {
             
             WorkerPanel.SetActive(false);
+            GroupingButton.gameObject.SetActive(true);
             PositioningButton.gameObject.SetActive(true);
 
             GroupingButton.onClick.RemoveAllListeners();
             PositioningButton.onClick.RemoveAllListeners();
 
-            if(!Grouping || !Positioning) {
+            GroupingButton.onClick.AddListener(() => GroupingON() );
+            PositioningButton.onClick.AddListener(() => PositioningON() );
 
-                GroupingButton.onClick.AddListener(() => GroupingON() );
-                PositioningButton.onClick.AddListener(() => PositioningON() );
-            }
 
         } else {
 
@@ -78,17 +79,21 @@ public class TownfolksUI : MonoBehaviour
 
     public void CloseFolkPanel() {
 
-        FolkUI.SetActive(false);
-
+        foreach (var panel in FolkPanels) {
+            Destroy(panel);
+        }
+        foreach (var selectedPanel in selectedFolksPanels) {
+            Destroy(selectedPanel);
+        }
         foreach (var slot in WorkerSlots ) {
             Destroy(slot);
         }
-        foreach (var panel in selectedFolksPanels) {
-            Destroy(panel);
-        }
 
-        WorkerSlots.Clear();
+        FolkPanels.Clear();
         selectedFolksPanels.Clear();
+        WorkerSlots.Clear();
+
+        FolkUI.SetActive(false);
     }
 
     public void OpenFolkDetail() {
@@ -106,11 +111,13 @@ public class TownfolksUI : MonoBehaviour
 
     void SpawnFolkPanels() {
 
-        for (int i = 0; i < TownfolkManager.instance.Townfolks.Count; i++) {
-            
-            GameObject folkPanel = Instantiate(FolkPanelPrefab, FolkUIBackground.transform);            
-            LoadFolkInfo(folkPanel.GetComponent<FolkPanel>(), TownfolkManager.instance.Townfolks[i]);
-            FolkPanels.Add(folkPanel);
+        for (int g = 0; g < TownfolkManager.instance.TownfolkGroups.Count; g++) {
+            for (int i = 0; i < TownfolkManager.instance.TownfolkGroups[g].FolksInThisGroup.Count; i++) {
+
+                GameObject folkPanel = Instantiate(FolkPanelPrefab, TownfolkManager.instance.TownfolkGroups[g].AssignedTab);            
+                LoadFolkInfo(folkPanel.GetComponent<FolkPanel>(), TownfolkManager.instance.TownfolkGroups[g].FolksInThisGroup[i]);
+                FolkPanels.Add(folkPanel);
+            }
         }
     }
 
@@ -209,20 +216,34 @@ public class TownfolksUI : MonoBehaviour
     }
 
     void GroupingON() {
-        Grouping = true;
-        SelectionMisc(true);
+        
+        if(!Grouping) {
 
-        for (int i = 0; i < FolkPanels.Count; i++){
-            AssignFolkButtons(i, true);
+            if(TownfolkManager.instance.TownfolkGroups.Count <= 1) {
+                TabHandler.instance.CreateTab();
+            }
+
+            Grouping = true;
+            SelectionMisc(true);
+
+            for (int i = 0; i < FolkPanels.Count; i++){
+                AssignFolkButtons(i, true);
+            }
+
+            TabHandler.instance.OpenTab(TabHandler.instance.DefaultTab);
         }
     }
 
     void PositioningON() {
-        Positioning = true;
-        SelectionMisc(false);
 
-        for (int i = 0; i < FolkPanels.Count; i++) {
-            AssignFolkButtons(i, false);
+        if(!Positioning) {
+
+            Positioning = true;
+            SelectionMisc(false);
+
+            for (int i = 0; i < FolkPanels.Count; i++) {
+                AssignFolkButtons(i, false);
+            }
         }
     }
 
@@ -249,6 +270,12 @@ public class TownfolksUI : MonoBehaviour
         
         if(!selectedFolks.Contains(TownfolkManager.instance.Townfolks[index])){
 
+            if(Positioning) {
+                if(selectedFolk.AssignedBuilding != null) {
+                    return;
+                }
+            }
+
             selectedFolks.Add(TownfolkManager.instance.Townfolks[index]);
 
             GameObject selectedFolkWorkersSlot = Instantiate(WorkerSlotPrefab, WorkerPanel.transform);
@@ -259,14 +286,7 @@ public class TownfolksUI : MonoBehaviour
             selectedFolksPanels.Add(FolkPanels[index]);
 
             if(grouping) {
-
-                if(!TabHandler.instance.Tabs.Contains(TabHandler.instance.UsedTab) || TabHandler.instance.UsedTab.GetComponent<TownfolkGroup>().AssignedTabButton.GetComponent<TabSwitchButton>().DefaultButton) {
-
-                    TabHandler.instance.CreateTab();
-                }
-                    
                 TownfolkManager.instance.AddFolkIntoGroup(TownfolkManager.instance.GroupIndex, TownfolkManager.instance.Townfolks[index]);
-                
             }
         } else {
             selectedFolks.Remove(selectedFolk);
@@ -275,15 +295,19 @@ public class TownfolksUI : MonoBehaviour
         }
     }
 
-    void confirmButton(bool grouping) {
+    void AssignCreateGroupButton() {
 
-        uiManager.instance.ConfirmButton.onClick.RemoveAllListeners();
+        CreateGroupButton.onClick.RemoveAllListeners();
+        CreateGroupButton.onClick.AddListener(() => { TabHandler.instance.CreateTab(); });
+    }
+
+    void confirmButton(bool grouping) {
 
         if(grouping) {
 
             for (int i = 0; i < selectedFolksPanels.Count; i++) {
                 selectedFolksPanels[i].GetComponent<FolkPanel>().UsedFolk.AssignedGroup = TownfolkManager.instance.TownfolkGroups[TownfolkManager.instance.GroupIndex];
-                selectedFolksPanels[i].transform.SetParent(FolkPanels[i].GetComponent<FolkPanel>().UsedFolk.AssignedGroup.AssignedTab);
+                selectedFolksPanels[i].transform.SetParent(selectedFolksPanels[i].GetComponent<FolkPanel>().UsedFolk.AssignedGroup.AssignedTab);
             }
 
             Grouping = false;
@@ -294,9 +318,12 @@ public class TownfolksUI : MonoBehaviour
             WorkerSlots.Clear();
             selectedFolksPanels.Clear();
 
-            DefaultTab.SetActive(false);
+            TabHandler.instance.OpenTab(TabHandler.instance.UsedTab);
             WorkerPanel.SetActive(false);
-        } else {
+            uiManager.instance.ConfirmButton.gameObject.SetActive(false);
+
+        } 
+        else if(Positioning) {
 
             CloseFolkPanel();
 
@@ -306,11 +333,13 @@ public class TownfolksUI : MonoBehaviour
 
                 Positioning = false;            
                 uiManager.instance.ConfirmButton.transform.DOLocalMoveX(450, 1);
+                uiManager.instance.ConfirmButton.gameObject.SetActive(false);
             });
+        } else {
+
+            selectedFolks.Clear();
+            GameManager.instance.ShowNightButton();
         }
         
-        uiManager.instance.ConfirmButton.gameObject.SetActive(false);
-        selectedFolks.Clear();
-        GameManager.instance.ShowNightButton();
     }
 }

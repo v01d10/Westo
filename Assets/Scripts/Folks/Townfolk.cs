@@ -7,9 +7,7 @@ public enum TownfolkRole{
     None, Lumber, Miner, Crafter, Fighter,
 }
 
-public class Townfolk : MonoBehaviour
-{
-    public string Name;
+public class Townfolk : FolkBase {
 
     public TownfolkRole Role;
     public Transform ModelHolder;
@@ -20,18 +18,6 @@ public class Townfolk : MonoBehaviour
 
     public FolkNav navigation;
     public GameObject selectedFolkSlot;
-
-[Header("Basic Attributes")]
-    bool Male;
-    public float Health;
-    public float Level;
-    public float Exp;
-    public float ExpNeeded;
-
-    public float AtPoints;
-    public float Strength;
-    public float Inteligence;
-    public float Dexterity;
 
     public bool FolkSet;
 
@@ -67,43 +53,14 @@ public class Townfolk : MonoBehaviour
             if(Random.Range(0, 10) > 4) Male = true;
 
             SetFolkName();
-            Health = 101; Level = 1; ExpNeeded = 123;
+            MaxHealth = 101; Health = MaxHealth; Level = 1; ExpNeeded = 123;
             Strength = Random.Range(1, 4);
             Inteligence = Random.Range(1, 4);
             Dexterity = Random.Range(1, 4);
 
+            TownfolkManager.instance.TownfolkGroups[0].FolksInThisGroup.Add(this);
+
             FolkSet = true;
-        }
-    }
-
-    public void AddExp(float amount) {
-
-        if(Exp + amount < ExpNeeded) {
-           
-            Exp += amount;
-        } else {
-            
-            AtPoints++;
-            Level++;
-            Exp = (Exp + amount) - ExpNeeded;
-            ExpNeeded *= 1.7f;
-            Health *= 1.5f;
-        }
-    }
-
-    public void IncreaseStat(int index) {
-        
-        if(AtPoints > 0) {
-
-            AtPoints--;
-
-            if(index == 0) {
-                Strength++;
-            } else if(index == 1) {
-                Dexterity++;
-            } else if (index == 2) {
-                Inteligence++;
-            }
         }
     }
 
@@ -116,7 +73,7 @@ public class Townfolk : MonoBehaviour
 
     private void OnMouseDown() {
         
-        if(ModelHolder.gameObject.activeInHierarchy) {
+        if(ModelHolder.gameObject.activeInHierarchy && GameManager.instance.State == GameState.Day) {
 
             uiManager.instance.CloseUI();
             TownfolkManager.instance.SelectedFolk = this;
